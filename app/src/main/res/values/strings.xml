@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">TMDB API Call Test</string>
+    <string name="searchMoviesHint">Buscar películas</string>
+</resources>
