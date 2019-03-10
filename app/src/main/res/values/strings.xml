@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">TMDB API Call Test</string>
-    <string name="searchMoviesHint">Buscar películas</string>
+    <string name="search_movies_hint">Buscar películas</string>
+    <string name="movie_image_content_description"> </string>
+    <string name="movie_year_default">(1994)</string>
+    <string name="movie_title_default">Default Movie Title</string>
+    <string name="movie_description_default">Default Movie Description</string>
+    <string name="no_movies_founded">No se han encontrado películas.</string>
+    <string name="error_retrieving_movies">Error recuperando películas.</string>
 </resources>

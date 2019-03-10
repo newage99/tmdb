@@ -1,22 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
+    android:id="@+id/mainLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".MainActivity"
+    tools:context=".activities.MainActivity"
+    android:background="@android:color/darker_gray"
 >
-    <ListView
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+    >
+        <ListView
+            android:id="@+id/listView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-    />
-    <EditText
+        />
+        <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text"
             tools:ignore="Autofill"
-            android:hint="@string/searchMoviesHint"
+            android:hint="@string/search_movies_hint"
+        />
+    </LinearLayout>
+    <ProgressBar
+        android:id="@+id/moviesProgressbar"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_centerInParent="true"
     />
-</LinearLayout>
+    <TextView
+        android:id="@+id/moviesListCenterText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/no_movies_founded"
+        android:textColor="@android:color/holo_orange_dark"
+        android:textSize="16sp"
+        android:visibility="gone"
+    />
+</RelativeLayout>
