@@ -6,25 +6,76 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity"
-    android:background="@android:color/darker_gray"
 >
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
     >
-        <ListView
-            android:id="@+id/listView"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:scrollbars="vertical"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
         />
-        <EditText
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+    >
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            android:background="@drawable/white_gradient"
+        />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:background="@android:color/white"
+        />
+    </LinearLayout>
+    <RelativeLayout
+        android:id="@+id/moviesListGreyFilter"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#60000000"
+    />
+    <LinearLayout
+        android:id="@+id/searchMoviesEditTextWrapper"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/search_movies_edittext_background"
+    >
+        <LinearLayout
+            android:layout_width="51dp"
+            android:layout_height="match_parent"
+        >
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginStart="17dp"
+                android:background="@drawable/ic_lupa"
+            />
+        </LinearLayout>
+        <EditText
+            android:id="@+id/searchMoviesEditText"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
             android:inputType="text"
             tools:ignore="Autofill"
             android:hint="@string/search_movies_hint"
+            android:background="@android:color/transparent"
         />
     </LinearLayout>
     <ProgressBar
