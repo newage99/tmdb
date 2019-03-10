@@ -23,9 +23,10 @@ import android.graphics.BitmapFactory
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.example.tmdb.retrofit.responses.MovieWithBitmapDM
+import kotlin.random.Random
 
 const val NUMBER_OF_IMAGES_THAT_THE_API_GIVES_US: Int = 20
-const val NUMBER_OF_IMAGES_TO_DOWNLOAD_ASYNCRONOUSLY: Int = 20
+const val NUMBER_OF_IMAGES_TO_DOWNLOAD_ASYNCRONOUSLY: Int = 10
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,25 +41,26 @@ class MainActivity : AppCompatActivity() {
 
     // INTERFACES
     interface DownloadImageTaskResponse {
-        fun onResponse(moviesListIndex: Int, output: ArrayList<Bitmap>)
+        fun onResponse(moviesListIndex: Int, output: MutableMap<Int, Bitmap>)
     }
 
     // ASYNC TASKS
-    class DownloadImageTask(val moviesListIndex: Int, var asyncResponse: DownloadImageTaskResponse) : AsyncTask<ArrayList<String>, Void, Pair<Int, ArrayList<Bitmap>>>()
+    class DownloadImageTask(val moviesListIndex: Int, var asyncResponse: DownloadImageTaskResponse) : AsyncTask<MutableMap<Int, String>, Void, Pair<Int, MutableMap<Int, Bitmap>>>()
     {
-        override fun doInBackground(vararg urls: ArrayList<String>): Pair<Int, ArrayList<Bitmap>> {
-            val imagesArray: ArrayList<Bitmap> = ArrayList()
-            try {
-                for (i in 0 until NUMBER_OF_IMAGES_TO_DOWNLOAD_ASYNCRONOUSLY) {
-                    imagesArray.add(BitmapFactory.decodeStream(java.net.URL
-                        ("http://image.tmdb.org/t/p/w92" + urls[0][i]).openStream()))
+        override fun doInBackground(vararg urls: MutableMap<Int, String>): Pair<Int, MutableMap<Int, Bitmap>> {
+            //val imagesArray: ArrayList<Bitmap> = ArrayList()
+            val imagesMap: MutableMap<Int, Bitmap> = mutableMapOf()
+            urls[0].forEach {
+                try {
+                    imagesMap[it.key] = BitmapFactory.decodeStream(java.net.URL
+                        ("http://image.tmdb.org/t/p/w92" + it.value).openStream())
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
-            return Pair(moviesListIndex, imagesArray)
+            return Pair(moviesListIndex, imagesMap)
         }
-        override fun onPostExecute(result: Pair<Int, ArrayList<Bitmap>>) {
+        override fun onPostExecute(result: Pair<Int, MutableMap<Int, Bitmap>>) {
             asyncResponse.onResponse(result.first, result.second)
         }
     }
@@ -68,18 +70,21 @@ class MainActivity : AppCompatActivity() {
         try {
             for(i: Int in moviesList.size-NUMBER_OF_IMAGES_THAT_THE_API_GIVES_US
                     until moviesList.size-1 step NUMBER_OF_IMAGES_TO_DOWNLOAD_ASYNCRONOUSLY) {
-                val paths: ArrayList<String> = ArrayList()
+                val paths: MutableMap<Int, String> = mutableMapOf()
+                //val paths: ArrayList<String> = ArrayList()
                 for(j: Int in 0 until NUMBER_OF_IMAGES_TO_DOWNLOAD_ASYNCRONOUSLY) {
                     if (i+j < moviesList.size) {
-                        paths.add(moviesList[i+j].poster_path)
+                        val path: String? = moviesList[i+j].poster_path
+                        if (path != null && !path.isEmpty())
+                            paths[i+j] = path
                     }
                 }
                 val callback = object : DownloadImageTaskResponse {
-                    override fun onResponse(moviesListIndex: Int, output: ArrayList<Bitmap>) {
-                        for(z in 0 until NUMBER_OF_IMAGES_TO_DOWNLOAD_ASYNCRONOUSLY) {
-                            moviesList[moviesListIndex+z].poster = output[z]
+                    override fun onResponse(moviesListIndex: Int, output: MutableMap<Int, Bitmap>) {
+                        output.forEach {
+                            moviesList[it.key].poster = it.value
                         }
-                        viewAdapter.notifyDataSetChanged()
+                        viewAdapter.notifyItemRangeChanged(moviesListIndex, NUMBER_OF_IMAGES_TO_DOWNLOAD_ASYNCRONOUSLY)
                     }
                 }
                 DownloadImageTask(i, callback).execute(paths)

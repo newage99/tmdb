@@ -39,6 +39,8 @@ class MovieCustomAdapter(val data: ArrayList<MovieWithBitmapDM>)
         holder.description.text = data[position].overview
         if (bitmapIsNotEmpty(data[position].poster))
             holder.image.setImageBitmap(data[position].poster)
+        else
+            holder.image.setImageBitmap(null)
     }
     override fun getItemCount() = data.size
 }

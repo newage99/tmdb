@@ -6,6 +6,6 @@ class MovieWithBitmapDM(
     val title: String,
     val release_date: String,
     val overview: String,
-    val poster_path: String,
+    val poster_path: String?,
     var poster: Bitmap
 )
