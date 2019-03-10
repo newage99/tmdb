@@ -22,10 +22,10 @@
             android:textColor="@android:color/black"
         />
         <ImageView
+            android:layout_marginTop="7dp"
             android:id="@+id/movieImage"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="72dp"
             android:contentDescription="@string/movie_image_content_description"
         />
     </LinearLayout>

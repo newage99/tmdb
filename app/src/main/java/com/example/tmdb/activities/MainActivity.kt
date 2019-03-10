@@ -2,16 +2,13 @@ package com.example.tmdb.activities
 
 import android.app.Activity
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
 import android.widget.Toast
 import com.example.tmdb.R
 import com.example.tmdb.misc.MovieCustomAdapter
-import com.example.tmdb.retrofit.responses.MovieApiDM
 import com.example.tmdb.retrofit.responses.MoviesWrapperApiDM
 import com.example.tmdb.retrofit.services.TmdbService
 import kotlinx.android.synthetic.main.activity_main.*
@@ -22,9 +19,11 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.InputStream
 import java.lang.Exception
-import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import com.example.tmdb.retrofit.responses.MovieWithBitmapDM
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,60 +32,70 @@ class MainActivity : AppCompatActivity() {
     private lateinit var retrofit: Retrofit
     private lateinit var service: TmdbService
     private val context: Activity = this
-    private var moviesList: ArrayList<MovieApiDM> = ArrayList()
+    private var moviesList: ArrayList<MovieWithBitmapDM> = ArrayList()
     private lateinit var moviesListAdapter: MovieCustomAdapter
+    private var actualPage: Int = 1
+
+    // INTERFACES
+    interface DownloadImageTaskResponse {
+        fun onResponse(output: Bitmap)
+    }
 
     // ASYNC TASKS
-    class GetHttpImageTask(private var imageView: ImageView) : AsyncTask<String, Void, Drawable>() {
-        override fun doInBackground(vararg args: String): Drawable? {
+    class DownloadImageTask(var asyncResponse: DownloadImageTaskResponse) : AsyncTask<String, Void, Bitmap>()
+    {
+        override fun doInBackground(vararg urls: String): Bitmap? {
+            val urldisplay = "http://image.tmdb.org/t/p/w92" + urls[0]
+            var mIcon11: Bitmap? = null
             try {
-                val src = "http://image.tmdb.org/t/p/w92" + args[0]
-                val inputStream = URL(src).getContent() as InputStream
-                return Drawable.createFromStream(inputStream, src)
+                val inputStream: InputStream = java.net.URL(urldisplay).openStream()
+                mIcon11 = BitmapFactory.decodeStream(inputStream)
             } catch (e: Exception) {
-                var a = e
+                e.printStackTrace()
             }
-            return null
+            return mIcon11
         }
-        override fun onPostExecute(result: Drawable?) {
-            super.onPostExecute(result)
-            var a = imageView
-            imageView.setImageDrawable(result)
-            var b = 0
+        override fun onPostExecute(result: Bitmap) {
+            asyncResponse.onResponse(result)
         }
     }
 
     // PRIVATE METHODS
     fun setPosterImages() {
         try {
-            var rowView: View
-            for (i in 0 until listView.count-1) {
-                rowView = listView.adapter.getView(i, null, listView)
-                val imgView: ImageView = rowView.findViewById(R.id.movieImage)
-                GetHttpImageTask(imgView).execute(imgView.tag as String)
+            moviesList.forEach {
+                val callback = object : DownloadImageTaskResponse {
+                    override fun onResponse(output: Bitmap) {
+                        it.poster = output
+                        moviesListAdapter.notifyDataSetChanged()
+                    }
+                }
+                DownloadImageTask(callback).execute(it.poster_path)
             }
         } catch (e: Exception) {
             val toast = Toast.makeText(this, "setPosterImages: " + e.toString(), Toast.LENGTH_LONG)
             toast.show()
         }
     }
-    fun enqueueMostPopularMoviesCall(page: Int = 1) {
+    fun enqueueMostPopularMoviesCall() {
         try {
             timestampOfTheLastApiCall = Date()
             val timestampOfTheActualApiCall = timestampOfTheLastApiCall
-            service.getMostPopularMovies(page).enqueue(object: Callback<MoviesWrapperApiDM> {
+            service.getMostPopularMovies(actualPage).enqueue(object: Callback<MoviesWrapperApiDM> {
                 override fun onResponse(call: Call<MoviesWrapperApiDM>, response: Response<MoviesWrapperApiDM>) {
                     if (timestampOfTheActualApiCall === timestampOfTheLastApiCall) {
                         val result: MoviesWrapperApiDM? = response.body()
                         if (result != null) {
-                            val resultMoviesList: ArrayList<MovieApiDM> = ArrayList()
+                            if (actualPage == 1)
+                                moviesList.clear()
+                            val resultMoviesList: ArrayList<MovieWithBitmapDM> = ArrayList()
                             result.results.forEach {
-                                resultMoviesList.add(it)
+                                //resultMoviesList.add(it)
+                                moviesList.add(it)
                             }
-                            moviesList.clear()
-                            moviesList.addAll(resultMoviesList)
+                            //moviesList.addAll(resultMoviesList)
                             moviesListAdapter.notifyDataSetChanged()
-                            //setPosterImages()
+                            setPosterImages()
                             moviesListCenterText.visibility = View.GONE
                             mainLayout.setBackgroundColor(Color.WHITE)
                         } else {
@@ -118,6 +127,7 @@ class MainActivity : AppCompatActivity() {
             moviesListAdapter = MovieCustomAdapter(moviesList, this)
             listView.isScrollingCacheEnabled = false
             listView.adapter = moviesListAdapter
+
             retrofit = Retrofit.Builder().baseUrl("https://api.themoviedb.org/")
                 .addConverterFactory(GsonConverterFactory.create()).build()
             service = retrofit.create(TmdbService::class.java)

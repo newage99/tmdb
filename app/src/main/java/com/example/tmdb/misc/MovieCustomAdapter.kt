@@ -1,35 +1,46 @@
 package com.example.tmdb.misc
 
 import android.app.Activity
+import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import com.example.tmdb.retrofit.responses.MovieApiDM
 import android.view.LayoutInflater
 import com.example.tmdb.R
+import com.example.tmdb.retrofit.responses.MovieWithBitmapDM
+import java.lang.Exception
 
-class MovieCustomAdapter(val data: ArrayList<MovieApiDM>, context: Activity)
-    : ArrayAdapter<MovieApiDM>(context, R.layout.list_item, data)
+fun bitmapIsNotEmpty(bm: Bitmap?): Boolean {
+    return bm != null && bm.width > 1 && bm.height > 1
+}
+
+class MovieCustomAdapter(val data: ArrayList<MovieWithBitmapDM>, context: Activity)
+    : ArrayAdapter<MovieWithBitmapDM>(context, R.layout.list_item, data)
 {
     private val layoutInflater = LayoutInflater.from(context)
 
     override fun getView(position: Int, view: View?, parent: ViewGroup?): View? {
-        val viewHolder: ViewHolder
-        val rowView: View?
-        if (view == null) {
-            rowView = layoutInflater.inflate(R.layout.list_item, parent, false)
-            viewHolder = ViewHolder(rowView)
-            rowView.tag = viewHolder
-        } else {
-            rowView = view
-            viewHolder = rowView.tag as ViewHolder
+        var rowView: View? = null
+        try {
+            val viewHolder: ViewHolder
+            if (view == null) {
+                rowView = layoutInflater.inflate(R.layout.list_item, parent, false)
+                viewHolder = ViewHolder(rowView)
+                rowView.tag = viewHolder
+            } else {
+                rowView = view
+                viewHolder = rowView.tag as ViewHolder
+            }
+            viewHolder.year.text = "(" + data[position].release_date.substring(0, 4) + ")"
+            viewHolder.title.text = data[position].title
+            viewHolder.description.text = data[position].overview
+            if (bitmapIsNotEmpty(data[position].poster))
+                viewHolder.image.setImageBitmap(data[position].poster)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        viewHolder.image.tag = data[position].poster_path
-        viewHolder.year.text = "(" + data[position].release_date.substring(0, 4) + ")"
-        viewHolder.title.text = data[position].title
-        viewHolder.description.text = data[position].overview
         return rowView
     }
     private class ViewHolder(view: View?) {
