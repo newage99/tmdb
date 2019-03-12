@@ -10,4 +10,8 @@ interface TmdbService {
     @Headers("Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1MzM1ZTMzODg4ZjVmZGFkNTY0ZTRlNDY0NWU5Yjk0NCIsInN1YiI6IjVjODNmOTdiMGUwYTI2NDMwYTYzMGRlMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.XJEfCEcXZ3YlibCQhVqhUm5Hh5E5C92EDjvUPDRFgak")
     @GET("/4/discover/movie?sort_by=popularity.desc&language=es")
     fun getMostPopularMovies(@Query("page") page: Int): Call<MoviesWrapperApiDM>
+
+    @Headers("Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1MzM1ZTMzODg4ZjVmZGFkNTY0ZTRlNDY0NWU5Yjk0NCIsInN1YiI6IjVjODNmOTdiMGUwYTI2NDMwYTYzMGRlMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.XJEfCEcXZ3YlibCQhVqhUm5Hh5E5C92EDjvUPDRFgak")
+    @GET("/4/search/movie?language=es")
+    fun searchMovie(@Query("query") query: String, @Query("page") page: Int): Call<MoviesWrapperApiDM>
 }

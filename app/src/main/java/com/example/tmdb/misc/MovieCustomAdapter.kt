@@ -34,13 +34,20 @@ class MovieCustomAdapter(val data: ArrayList<MovieWithBitmapDM>)
         return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent, false) as LinearLayout)
     }
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.year.text = "(" + data[position].release_date.substring(0, 4) + ")"
-        holder.title.text = data[position].title
-        holder.description.text = data[position].overview
-        if (bitmapIsNotEmpty(data[position].poster))
-            holder.image.setImageBitmap(data[position].poster)
-        else
-            holder.image.setImageBitmap(null)
+        try {
+            if (data[position].release_date.length >= 4)
+                holder.year.text = "(" + data[position].release_date.substring(0, 4) + ")"
+            else
+                holder.year.text = "(" + data[position].release_date + ")"
+            holder.title.text = data[position].title
+            holder.description.text = data[position].overview
+            if (bitmapIsNotEmpty(data[position].poster))
+                holder.image.setImageBitmap(data[position].poster)
+            else
+                holder.image.setImageBitmap(null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
     override fun getItemCount() = data.size
 }
